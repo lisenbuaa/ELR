@@ -99,11 +99,12 @@ class ResNet(nn.Module):
         out = self.layer3(out)
         out = self.layer4(out)
         out = F.avg_pool2d(out, 4)
+        features = out
         y = out.view(out.size(0), -1)
         out = self.linear(y)
         if out.requires_grad:
             out.register_hook(self.activations_hook)
-        return out
+        return out, features
 
     def get_activations_gradient(self):
         return self.gradients

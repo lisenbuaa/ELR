@@ -74,13 +74,13 @@ class Trainer(BaseTrainer):
                 
                 data, label = data.to(self.device), label.long().to(self.device)
                 
-                output = self.model(data)
+                # import pdb
+                # pdb.set_trace()
+                output,features = self.model(data)
 
-                loss = self.train_criterion(indexs.cpu().detach().numpy().tolist(), output, label)
+                loss = self.train_criterion(indexs.cpu().detach().numpy().tolist(), output, label, features, epoch)
                 self.optimizer.zero_grad()
                 loss.backward()
-
-
 
                 
                 self.optimizer.step()
@@ -144,7 +144,7 @@ class Trainer(BaseTrainer):
                 for batch_idx, (data, label, _, _) in enumerate(progress):
                     progress.set_description_str(f'Valid epoch {epoch}')
                     data, label = data.to(self.device), label.to(self.device)
-                    output = self.model(data)
+                    output,_ = self.model(data)
                     loss = self.val_criterion(output, label)
 
                     self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
@@ -182,7 +182,7 @@ class Trainer(BaseTrainer):
                 for batch_idx, (data, label,indexs,_) in enumerate(progress):
                     progress.set_description_str(f'Test epoch {epoch}')
                     data, label = data.to(self.device), label.to(self.device)
-                    output = self.model(data)
+                    output,_ = self.model(data)
                     
                     loss = self.val_criterion(output, label)
 

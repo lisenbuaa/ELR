@@ -77,6 +77,8 @@ class Trainer(BaseTrainer):
         model_ema.train()
 
         total_loss = 0
+        # import pdb
+        # pdb.set_trace()
         total_metrics = np.zeros(len(self.metrics))
         total_metrics_ema = np.zeros(len(self.metrics))
 
@@ -101,15 +103,15 @@ class Trainer(BaseTrainer):
                 
                 data, target, mixup_l, mix_index = self._mixup_data(data, target,  alpha = self.config['mixup_alpha'], device = device)
                 
-                output = model(data)
+                output,features = model(data)
 
                 data_original = data_original.to(device)
-                output_original  = model_ema2(data_original)
+                output_original,_  = model_ema2(data_original)
                 output_original = output_original.data.detach()
                 train_criterion.update_hist(epoch, output_original, indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
                 
                 local_step += 1
-                loss, probs = train_criterion(self.global_step + local_step, output, target)
+                loss, probs = train_criterion(self.global_step + local_step, output, target, features, epoch)
                 
                 optimizer.zero_grad()
                 loss.backward() 
@@ -179,8 +181,8 @@ class Trainer(BaseTrainer):
                     progress.set_description_str(f'Valid epoch {epoch}')
                     data, target = data.to(device), target.to(device)
                     
-                    output1 = model1(data)
-                    output2 = model2(data)
+                    output1,_ = model1(data)
+                    output2,_ = model2(data)
 
                     output = 0.5*(output1 + output2)
 
@@ -228,8 +230,8 @@ class Trainer(BaseTrainer):
                     progress.set_description_str(f'Test epoch {epoch}')
                     data, target = data.to(device), target.to(device)
 
-                    output1 = model1(data)
-                    output2 = model2(data)
+                    output1,_ = model1(data)
+                    output2,_ = model2(data)
                     
                     output = 0.5*(output1 + output2)
                     loss = self.val_criterion(output, target)
@@ -268,7 +270,7 @@ class Trainer(BaseTrainer):
 
                 data, target = data.to(device), target.long().to(device)
                 optimizer.zero_grad()
-                output = model(data)
+                output,_ = model(data)
                 out_prob = output.data.detach()
                 
                 train_criterion.update_hist(epoch, out_prob ,indexs.cpu().detach().numpy().tolist())
@@ -312,8 +314,8 @@ class Trainer(BaseTrainer):
         with torch.no_grad():
             for batch_idx, (inputs, targets, path) in enumerate(eval_loader):
                 inputs, targets = inputs.cuda(), targets.cuda()  
-                output0  = model_ema2(inputs)
-                output0 = output0.data.detach()
+                output0,_  = model_ema2(inputs)
+                output0,_ = output0.data.detach()
                 output1, output2, output3 = None, None, None
                 train_criterion.update_hist(epoch, output0, output1, output2, output3, indexs.numpy().tolist(),mix_index = mix_index, mixup_l = mixup_l)
 

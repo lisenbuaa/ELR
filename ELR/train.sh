@@ -1,0 +1,1 @@
+python train.py -c config_cifar10.json --percent 0.8

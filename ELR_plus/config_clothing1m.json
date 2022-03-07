@@ -18,20 +18,20 @@
     "coef_step": 0,
     "num_classes": 14,
     "ema_alpha": 0.9999,
-    "ema_update": false,
+    "ema_update": true,
     "ema_step": -1,
 
 
     "data_loader": {
         "type": "Clothing1MDataLoader",
         "args":{
-            "data_dir": "/gpfs/data/razavianlab/skynet/alzheimers/noisy_label/clothing1M/images",
+            "data_dir": "/data/lisen/denoise_dataset/clothing1m",
             "batch_size": 64,
             "batch_size2": 64,
             "num_batches": 3000,
             "shuffle": true,
             "validation_split": 0,
-            "num_workers": 8,
+            "num_workers": 16,
             "pin_memory": true
         }
     },
@@ -71,16 +71,16 @@
 
     "lr_scheduler": {
         "type": "MultiStepLR",
-        "args": { 
-            "milestones": [7],
+        "args": {
+            "milestones": [7,14],
             "gamma": 0.1
         }
     },
 
     "trainer": {
-        "epochs": 15,
+        "epochs": 30,
         "warmup": 0,
-        "save_dir": "/gpfs/data/razavianlab/skynet/alzheimers/noisy_label/saved/",
+        "save_dir": "/data/lisen/denoise_code/elr_code/saved_grouse_baseline",
         "save_period": 1,
         "verbosity": 2,
         "label_dir": "saved/",
