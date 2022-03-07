@@ -25,7 +25,7 @@
     "data_loader": {
         "type": "Clothing1MDataLoader",
         "args":{
-            "data_dir": "/data/lisen/denoise_dataset/clothing1m",
+            "data_dir": "/home/lisen/data/clothing1m",
             "batch_size": 64,
             "batch_size2": 64,
             "num_batches": 3000,
@@ -80,7 +80,7 @@
     "trainer": {
         "epochs": 30,
         "warmup": 0,
-        "save_dir": "/data/lisen/denoise_code/elr_code/saved_grouse_baseline",
+        "save_dir": "../saved_grouse_baseline",
         "save_period": 1,
         "verbosity": 2,
         "label_dir": "saved/",
