@@ -66,6 +66,7 @@ class resnet50(torch.nn.Module):
         # import pdb
         # pdb.set_trace()
         output2048 = output['3']
+        # fet = output2048
         outputs = output2048.reshape((-1,2048,49))
         outputs = outputs.permute((0,2,1))
         fet = self.extern_attention(outputs)
