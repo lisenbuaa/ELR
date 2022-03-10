@@ -111,7 +111,7 @@ class Trainer(BaseTrainer):
                 train_criterion.update_hist(epoch, output_original, indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
                 
                 local_step += 1
-                loss, probs = train_criterion(self.global_step + local_step, output, target, features, epoch)
+                loss, probs = train_criterion(self.global_step + local_step, output, target)
                 
                 optimizer.zero_grad()
                 loss.backward() 

@@ -66,11 +66,13 @@ class resnet50(torch.nn.Module):
         # import pdb
         # pdb.set_trace()
         output2048 = output['3']
-        import pdb
-        pdb.set_trace()
-        features = self.gap(output2048).squeeze()
+        outputs = output2048.reshape((-1,2048,49))
+        outputs = outputs.permute((0,2,1))
+        fet = self.extern_attention(outputs)
+        fet = fet.permute((0,2,1))
+        fet = fet.reshape((-1,2048,7,7))
+        features = self.gap(fet).squeeze()
         output2048 = self.fc(features)
-
         return output2048, features
 # def resnet50(num_classes=14):
 #     import torchvision.models as models
