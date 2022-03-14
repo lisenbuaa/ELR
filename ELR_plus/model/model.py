@@ -24,6 +24,7 @@ class resnet50(torch.nn.Module):
             self.model_ft, return_nodes={f'layer{k}': str(v)
                              for v, k in enumerate([1, 2, 3, 4])})
         self.fc = nn.Linear(self.in_channels, num_classes)
+        self.fc_low_dim = nn.Linear(self.in_channels, 128)
         self.gap = torch.nn.AdaptiveAvgPool2d((1,1))
 
     def forward(self, x):
@@ -32,9 +33,10 @@ class resnet50(torch.nn.Module):
         # pdb.set_trace()
         output2048 = output['3']
         features = self.gap(output2048).squeeze()
+        features_lowdim = self.fc_low_dim(features)
         output2048 = self.fc(features)
 
-        return output2048, features
+        return output2048, features_lowdim
 # def resnet50(num_classes=14):
 #     import torchvision.models as models
 #     model_ft = models.resnet50(pretrained=True)
