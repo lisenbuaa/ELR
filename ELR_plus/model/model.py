@@ -58,7 +58,10 @@ class resnet50(torch.nn.Module):
             self.model_ft, return_nodes={f'layer{k}': str(v)
                              for v, k in enumerate([1, 2, 3, 4])})
         self.extern_attention = ExternalAttention(d_model=2048,S=8)
-        self.fc = nn.Linear(self.in_channels, num_classes)
+        self.fc = nn.Linear((self.in_channels+128), num_classes)
+        self.fc_low_dim = nn.Linear(self.in_channels, 128)
+
+
         self.gap = torch.nn.AdaptiveAvgPool2d((1,1))
 
     def forward(self, x):
@@ -67,14 +70,19 @@ class resnet50(torch.nn.Module):
         # pdb.set_trace()
         output2048 = output['3']
         # fet = output2048
-        outputs = output2048.reshape((-1,2048,49))
-        outputs = outputs.permute((0,2,1))
-        fet = self.extern_attention(outputs)
+        outputs_external = output2048.reshape((-1,2048,49))
+        outputs_external = outputs_external.permute((0,2,1))
+        fet = self.extern_attention(outputs_external)
         fet = fet.permute((0,2,1))
         fet = fet.reshape((-1,2048,7,7))
-        features = self.gap(fet).squeeze()
-        output2048 = self.fc(features)
-        return output2048, features
+        features_external = self.gap(fet).squeeze()
+        features_external = self.fc_low_dim(features_external)
+        features = self.gap(output2048).squeeze()
+        features_all = torch.cat([features_external,features],dim=1)
+        output2048 = self.fc(features_all)
+        return output2048, features_all
+
+        
 # def resnet50(num_classes=14):
 #     import torchvision.models as models
 #     model_ft = models.resnet50(pretrained=True)
