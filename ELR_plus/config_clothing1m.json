@@ -78,7 +78,7 @@
     },
 
     "trainer": {
-        "epochs": 30,
+        "epochs": 15,
         "warmup": 0,
         "save_dir": "./saved_external_attention",
         "save_period": 1,
