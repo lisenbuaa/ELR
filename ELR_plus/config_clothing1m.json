@@ -80,7 +80,7 @@
     "trainer": {
         "epochs": 30,
         "warmup": 0,
-        "save_dir": "../saved_external_attention",
+        "save_dir": "./saved_external_attention",
         "save_period": 1,
         "verbosity": 2,
         "label_dir": "saved/",
