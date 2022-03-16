@@ -42,7 +42,7 @@ class elr_plus_loss(nn.Module):
         weight = self.q.detach()
         #### add by lisen
         features_loss = self.mse(torch.torch.mm(weight,self.memeory_ut), vt)
-        reconstruct_loss = self.mse(torch.torch.mm(features_highdim, features_resconstruct))
+        reconstruct_loss = self.mse(features_highdim, features_resconstruct)
 
         final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda'])*elr_reg + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['gamma'])*(features_loss+reconstruct_loss)
         
