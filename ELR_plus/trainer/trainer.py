@@ -103,7 +103,7 @@ class Trainer(BaseTrainer):
                 
                 data, target, mixup_l, mix_index = self._mixup_data(data, target,  alpha = self.config['mixup_alpha'], device = device)
                 
-                output,features = model(data)
+                output,features_lowdim,features_highdim,features_construct = model(data)
 
                 data_original = data_original.to(device)
                 output_original,_  = model_ema2(data_original)
@@ -111,7 +111,7 @@ class Trainer(BaseTrainer):
                 train_criterion.update_hist(epoch, output_original, indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
                 
                 local_step += 1
-                loss, probs = train_criterion(self.global_step + local_step, output, target, features, epoch)
+                loss, probs = train_criterion(self.global_step + local_step, output, target, features_lowdim,features_highdim, epoch)
                 
                 optimizer.zero_grad()
                 loss.backward() 
