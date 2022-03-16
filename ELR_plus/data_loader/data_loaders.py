@@ -11,6 +11,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from PIL import Image
+from autoaugment import ImageNetPolicy
 
 
 
@@ -81,6 +82,7 @@ class Clothing1MDataLoader(BaseDataLoader):
                 transforms.Resize(256),
                 transforms.RandomCrop(224),
                 transforms.RandomHorizontalFlip(),
+                ImageNetPolicy(),
                 transforms.ToTensor(),                
                 transforms.Normalize((0.6959, 0.6537, 0.6371),(0.3113, 0.3192, 0.3214)),                     
             ]) 
