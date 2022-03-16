@@ -1,5 +1,6 @@
+import sys
 import numpy as np
-from ops import *
+from data_loader.ops import *
 
 
 class ImageNetPolicy(object):
