@@ -21,7 +21,7 @@ class elr_plus_loss(nn.Module):
         self.beta = beta
         self.num_classes = num_classes
         self.mse = nn.MSELoss()
-        one_vector = torch.ones(self.num_classes, 128).cuda()
+        one_vector = torch.ones(self.num_classes, 20).cuda()
         self.memeory_ut = torch.div(one_vector,torch.norm(one_vector))
 
     def forward(self, iteration, output, y_labeled, vt, epoch):
@@ -43,7 +43,7 @@ class elr_plus_loss(nn.Module):
         #### add by lisen
         features_loss = self.mse(torch.torch.mm(weight,self.memeory_ut), vt)
 
-        final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda'])*elr_reg + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda'])*features_loss
+        final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda'])*elr_reg + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['gamma'])*features_loss
         
         weight_norm = torch.norm(weight)
 

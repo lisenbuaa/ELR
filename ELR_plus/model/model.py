@@ -24,7 +24,7 @@ class resnet50(torch.nn.Module):
             self.model_ft, return_nodes={f'layer{k}': str(v)
                              for v, k in enumerate([1, 2, 3, 4])})
         self.fc = nn.Linear(self.in_channels, num_classes)
-        self.fc_low_dim = nn.Linear(self.in_channels, 128)
+        self.fc_low_dim = nn.Linear(self.in_channels, 20)
         self.gap = torch.nn.AdaptiveAvgPool2d((1,1))
 
     def forward(self, x):
