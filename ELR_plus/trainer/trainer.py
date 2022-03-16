@@ -111,7 +111,7 @@ class Trainer(BaseTrainer):
                 train_criterion.update_hist(epoch, output_original, indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
                 
                 local_step += 1
-                loss, probs = train_criterion(self.global_step + local_step, output, target, features_lowdim,features_highdim, epoch)
+                loss, probs = train_criterion(self.global_step + local_step, output, target, features_lowdim,features_highdim,features_construct, epoch)
                 
                 optimizer.zero_grad()
                 loss.backward() 
@@ -181,8 +181,8 @@ class Trainer(BaseTrainer):
                     progress.set_description_str(f'Valid epoch {epoch}')
                     data, target = data.to(device), target.to(device)
                     
-                    output1,_ = model1(data)
-                    output2,_ = model2(data)
+                    output1,_,_,_ = model1(data)
+                    output2,_,_,_ = model2(data)
 
                     output = 0.5*(output1 + output2)
 
@@ -230,8 +230,8 @@ class Trainer(BaseTrainer):
                     progress.set_description_str(f'Test epoch {epoch}')
                     data, target = data.to(device), target.to(device)
 
-                    output1,_ = model1(data)
-                    output2,_ = model2(data)
+                    output1,_,_,_ = model1(data)
+                    output2,_,_,_ = model2(data)
                     
                     output = 0.5*(output1 + output2)
                     loss = self.val_criterion(output, target)
@@ -270,7 +270,7 @@ class Trainer(BaseTrainer):
 
                 data, target = data.to(device), target.long().to(device)
                 optimizer.zero_grad()
-                output,_ = model(data)
+                output,_,_,_ = model(data)
                 out_prob = output.data.detach()
                 
                 train_criterion.update_hist(epoch, out_prob ,indexs.cpu().detach().numpy().tolist())
@@ -314,8 +314,8 @@ class Trainer(BaseTrainer):
         with torch.no_grad():
             for batch_idx, (inputs, targets, path) in enumerate(eval_loader):
                 inputs, targets = inputs.cuda(), targets.cuda()  
-                output0,_  = model_ema2(inputs)
-                output0,_ = output0.data.detach()
+                output0,_,_,_  = model_ema2(inputs)
+                output0 = output0.data.detach()
                 output1, output2, output3 = None, None, None
                 train_criterion.update_hist(epoch, output0, output1, output2, output3, indexs.numpy().tolist(),mix_index = mix_index, mixup_l = mixup_l)
 
