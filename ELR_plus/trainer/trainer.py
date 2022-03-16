@@ -106,7 +106,7 @@ class Trainer(BaseTrainer):
                 output,features_lowdim,features_highdim,features_reconstruct = model(data)
 
                 data_original = data_original.to(device)
-                output_original,_  = model_ema2(data_original)
+                output_original,_,_,_ = model_ema2(data_original)
                 output_original = output_original.data.detach()
                 train_criterion.update_hist(epoch, output_original, indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
                 
