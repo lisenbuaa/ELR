@@ -48,7 +48,7 @@
     "optimizer2": {
         "type": "SGD",
         "args":{
-            "lr": 0.01,
+            "lr": 0.025,
             "momentum": 0.9,
             "weight_decay": 1e-3
         }
@@ -78,7 +78,7 @@
     },
 
     "trainer": {
-        "epochs": 15,
+        "epochs": 20,
         "warmup": 0,
         "save_dir": "./saved_diff_lr/",
         "save_period": 1,
