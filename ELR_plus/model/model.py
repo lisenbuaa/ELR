@@ -35,7 +35,7 @@ class resnet50(torch.nn.Module):
         output2048 = output['3']
         features_highdim = self.gap(output2048).squeeze()
         features_lowdim = self.fc_low_dim(features_highdim)
-        features_reconstruct = self.fc_low_dim(features_lowdim)
+        features_reconstruct = self.fc_reconstruct(features_lowdim)
         pred = self.fc(features_highdim)
 
         return pred, features_lowdim, features_highdim, features_reconstruct
