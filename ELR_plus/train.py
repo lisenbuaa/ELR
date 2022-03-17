@@ -74,9 +74,6 @@ def main(config: ConfigParser):
     model1 = config.initialize('arch1', module_arch)
     model_ema1 = config.initialize('arch1', module_arch)
     model_ema1_copy = config.initialize('arch1', module_arch)
-    model2 = config.initialize('arch2', module_arch)
-    model_ema2 = config.initialize('arch2', module_arch)
-    model_ema2_copy = config.initialize('arch2', module_arch)
     
 
     # get function handles of loss and metrics
@@ -84,42 +81,38 @@ def main(config: ConfigParser):
 
     if hasattr(data_loader1.dataset, 'num_raw_example') and hasattr(data_loader2.dataset, 'num_raw_example'):
         num_examp1 = data_loader1.dataset.num_raw_example
-        num_examp2 = data_loader2.dataset.num_raw_example
+
     else:
         num_examp1 = len(data_loader1.dataset)
-        num_examp2 = len(data_loader2.dataset)
 
     train_loss1 = getattr(module_loss, config['train_loss']['type'])(num_examp=num_examp1, num_classes=config['num_classes'],
                                                             device = 'cuda:'+ str(device_id[0]), config = config.config, beta=config['train_loss']['args']['beta'])
-    train_loss2 = getattr(module_loss, config['train_loss']['type'])(num_examp=num_examp2, num_classes=config['num_classes'],
-                                                            device = 'cuda:'+str(device_id[-1]), config = config.config, beta=config['train_loss']['args']['beta'])
+    
 
     val_loss = getattr(module_loss, config['val_loss'])
     metrics = [getattr(module_metric, met) for met in config['metrics']]
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     trainable_params1 = filter(lambda p: p.requires_grad, model1.parameters())
-    trainable_params2 = filter(lambda p: p.requires_grad, model2.parameters())
+
 
     optimizer1 = config.initialize('optimizer1', torch.optim, [{'params': trainable_params1}])
-    optimizer2 = config.initialize('optimizer2', torch.optim, [{'params': trainable_params2}])
+
 
     lr_scheduler1 = config.initialize('lr_scheduler', torch.optim.lr_scheduler, optimizer1)
-    lr_scheduler2 = config.initialize('lr_scheduler', torch.optim.lr_scheduler, optimizer2)
 
-    trainer = Trainer(model1, model2, model_ema1, model_ema2, train_loss1, train_loss2, 
+
+    trainer = Trainer(model1, model_ema1,  train_loss1, 
                       metrics, 
-                      optimizer1, optimizer2,
+                      optimizer1, 
                       config=config,
                       data_loader1=data_loader1,
                       data_loader2=data_loader2,
                       valid_data_loader=valid_data_loader,
                       test_data_loader=test_data_loader,
                       lr_scheduler1=lr_scheduler1,
-                      lr_scheduler2=lr_scheduler2,
                       val_criterion=val_loss,
-                      model_ema1_copy = model_ema1_copy,
-                      model_ema2_copy = model_ema2_copy)
+                      model_ema1_copy = model_ema1_copy)
 
     trainer.train()
     logger = config.get_logger('trainer', config['trainer']['verbosity'])

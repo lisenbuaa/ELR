@@ -57,7 +57,7 @@ class Trainer(BaseTrainer):
             self.writer.add_scalar('{}'.format(metric.__name__), acc_metrics[i])
         return acc_metrics
 
-    def _train_epoch(self, epoch, model, model_ema, model_ema2, data_loader, train_criterion, optimizer, lr_scheduler, device = 'cpu', queue = None):
+    def _train_epoch(self, epoch, model, model_ema, data_loader, train_criterion, optimizer, lr_scheduler, device = 'cpu', queue = None):
         """
         Training logic for an epoch
 
@@ -106,9 +106,10 @@ class Trainer(BaseTrainer):
                 output,features_lowdim,features_highdim,features_reconstruct = model(data)
 
                 data_original = data_original.to(device)
-                output_original,_,_,_ = model_ema2(data_original)
+                # output_original,_,_,_ = model_ema2(data_original)
+                output_original, features_lowdim_original,features_highdim_original,features_reconstruct_original = model_ema(data_original)
                 output_original = output_original.data.detach()
-                train_criterion.update_hist(epoch, output_original, indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
+                train_criterion.update_hist(epoch, output_original,features_lowdim_original indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
                 
                 local_step += 1
                 loss, probs = train_criterion(self.global_step + local_step, output, target, features_lowdim,features_highdim,features_reconstruct, epoch)
@@ -161,7 +162,7 @@ class Trainer(BaseTrainer):
             queue.put(log)
 
 
-    def _valid_epoch(self, epoch, model1, model2, device = 'cpu', queue = None):
+    def _valid_epoch(self, epoch, model1, device = 'cpu', queue = None):
         """
         Validate after training an epoch
 
@@ -171,7 +172,6 @@ class Trainer(BaseTrainer):
             The validation metrics in log must have the key 'val_metrics'.
         """
         model1.eval()
-        model2.eval()
 
         total_val_loss = 0
         total_val_metrics = np.zeros(len(self.metrics))
@@ -182,9 +182,8 @@ class Trainer(BaseTrainer):
                     data, target = data.to(device), target.to(device)
                     
                     output1,_,_,_ = model1(data)
-                    output2,_,_,_ = model2(data)
 
-                    output = 0.5*(output1 + output2)
+                    output = output1
 
                     loss = self.val_criterion(output, target)
 
@@ -210,7 +209,7 @@ class Trainer(BaseTrainer):
                 'val_metrics': (total_val_metrics / len(self.valid_data_loader)).tolist()
             })
 
-    def _test_epoch(self, epoch, model1, model2, device = 'cpu', queue = None):
+    def _test_epoch(self, epoch, model1, device = 'cpu', queue = None):
         """
         Test after training an epoch
 
@@ -220,7 +219,6 @@ class Trainer(BaseTrainer):
             The Test metrics in log must have the key 'val_metrics'.
         """
         model1.eval()
-        model2.eval()
 
         total_test_loss = 0
         total_test_metrics = np.zeros(len(self.metrics))
@@ -231,9 +229,8 @@ class Trainer(BaseTrainer):
                     data, target = data.to(device), target.to(device)
 
                     output1,_,_,_ = model1(data)
-                    output2,_,_,_ = model2(data)
                     
-                    output = 0.5*(output1 + output2)
+                    output = output1 
                     loss = self.val_criterion(output, target)
                     self.writer.set_step((epoch - 1) * len(self.test_data_loader) + batch_idx, 'test')
                     self.writer.add_scalar('loss', loss.item())

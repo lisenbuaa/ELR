@@ -32,6 +32,8 @@ class elr_plus_loss(nn.Module):
 
         y_pred = torch.clamp(y_pred, 1e-4, 1.0-1e-4)
 
+        weight = self.q.detach()
+
         if self.num_classes == 100:
             y_labeled = y_labeled*self.q
             y_labeled = y_labeled/(y_labeled).sum(dim=1,keepdim=True)
@@ -39,13 +41,25 @@ class elr_plus_loss(nn.Module):
         ce_loss = torch.mean(-torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1))
         elr_reg = ((1-(self.q * y_pred).sum(dim=1)).log()).mean()
         # final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda']*reg)
-        weight = self.q.detach()
         #### add by lisen
-        features_loss = self.mse(torch.torch.mm(weight,self.memeory_ut), vt)
+        features_loss = self.mse(torch.mm(weight,self.memeory_ut), vt)
         reconstruct_loss = self.mse(features_highdim, features_resconstruct)
 
         final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda'])*elr_reg + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['gamma'])*(features_loss+reconstruct_loss)
         
+        
+      
+        return  final_loss, y_pred.cpu().detach()
+
+    def update_hist(self, epoch, out, features_lowdim, index= None, mix_index = ..., mixup_l = 1):
+        
+        vt = features_lowdim
+        vt = vt.squeeze()
+        y_ut_predict = torch.mm(vt,torch.transpose(self.memeory_ut,(0,1)))
+        y_ut_predict = F.softmax(y_ut_predict,dim=1)
+
+        y_pred_ = F.softmax(out,dim=1)
+        weight = y_pred_.detach()
         weight_norm = torch.norm(weight)
 
         v_parallel = torch.mm(weight,self.memeory_ut) 
@@ -53,6 +67,7 @@ class elr_plus_loss(nn.Module):
         v_parallel_norm = v_parallel_norm.repeat(1,v_parallel.shape[1])
 
         
+
         v_vertical = vt - v_parallel
         v_vertical_norm = torch.norm(v_vertical,dim = 1).unsqueeze(1)
         v_parallel_norm = v_vertical_norm.repeat(1,v_vertical.shape[1])
@@ -63,10 +78,7 @@ class elr_plus_loss(nn.Module):
         torch.matmul(torch.div(weight,weight_norm).transpose(1,0),(torch.cos(thegma*self.n_size)-1)*torch.div(v_parallel,v_parallel_norm) + \
         torch.sin(thegma*self.n_size)*torch.div(v_vertical,v_vertical_norm))
         self.memeory_ut = self.memeory_ut.detach()
-      
-        return  final_loss, y_pred.cpu().detach()
 
-    def update_hist(self, epoch, out, index= None, mix_index = ..., mixup_l = 1):
-        y_pred_ = F.softmax(out,dim=1)
-        self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_/(y_pred_).sum(dim=1,keepdim=True)
+
+        self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_ut_predict/(y_ut_predict).sum(dim=1,keepdim=True)
         self.q = mixup_l * self.pred_hist[index]  + (1-mixup_l) * self.pred_hist[index][mix_index]
