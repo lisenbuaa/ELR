@@ -46,13 +46,42 @@ class elr_plus_loss(nn.Module):
 
         final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda'])*elr_reg + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['gamma'])*(features_loss+reconstruct_loss)
         
+        # weight_norm = torch.norm(weight)
+
+        # v_parallel = torch.mm(weight,self.memeory_ut) 
+        # v_parallel_norm = torch.norm(v_parallel,dim = 1)
+        # v_parallel_norm = v_parallel_norm.repeat(1,v_parallel.shape[1])
+
+        
+        # v_vertical = vt - v_parallel
+        # v_vertical_norm = torch.norm(v_vertical,dim = 1).unsqueeze(1)
+        # v_parallel_norm = v_vertical_norm.repeat(1,v_vertical.shape[1])
+
+        # thegma = v_parallel_norm * v_parallel_norm
+
+        # self.memeory_ut = self.memeory_ut + \
+        # torch.matmul(torch.div(weight,weight_norm).transpose(1,0),(torch.cos(thegma*self.n_size)-1)*torch.div(v_parallel,v_parallel_norm) + \
+        # torch.sin(thegma*self.n_size)*torch.div(v_vertical,v_vertical_norm))
+        # self.memeory_ut = self.memeory_ut.detach()
+      
+        return  final_loss, y_pred.cpu().detach()
+
+    def update_hist(self, epoch, out, feature_lowdim, index= None, mix_index = ..., mixup_l = 1):
+
+        self.n_size = 1/epoch
+        y_pred_ = F.softmax(out,dim=1)
+
+        weight = y_pred_.detach()
+
+        #### add by lisen
+        
         weight_norm = torch.norm(weight)
 
         v_parallel = torch.mm(weight,self.memeory_ut) 
         v_parallel_norm = torch.norm(v_parallel,dim = 1)
         v_parallel_norm = v_parallel_norm.repeat(1,v_parallel.shape[1])
 
-        
+        vt = feature_lowdim.squeeze()
         v_vertical = vt - v_parallel
         v_vertical_norm = torch.norm(v_vertical,dim = 1).unsqueeze(1)
         v_parallel_norm = v_vertical_norm.repeat(1,v_vertical.shape[1])
@@ -63,10 +92,11 @@ class elr_plus_loss(nn.Module):
         torch.matmul(torch.div(weight,weight_norm).transpose(1,0),(torch.cos(thegma*self.n_size)-1)*torch.div(v_parallel,v_parallel_norm) + \
         torch.sin(thegma*self.n_size)*torch.div(v_vertical,v_vertical_norm))
         self.memeory_ut = self.memeory_ut.detach()
-      
-        return  final_loss, y_pred.cpu().detach()
 
-    def update_hist(self, epoch, out, index= None, mix_index = ..., mixup_l = 1):
-        y_pred_ = F.softmax(out,dim=1)
-        self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_/(y_pred_).sum(dim=1,keepdim=True)
+        ##### pred the softlabel by grouse
+        y_pred_grouse = torch.mm(feature_lowdim, torch.transpose(self.memeory_ut,(1,0)))
+        y_pred_grouse = F.softmax(y_pred_grouse,dim=1)
+
+
+        self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse/(y_pred_grouse).sum(dim=1,keepdim=True)
         self.q = mixup_l * self.pred_hist[index]  + (1-mixup_l) * self.pred_hist[index][mix_index]
