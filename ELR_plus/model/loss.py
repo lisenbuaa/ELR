@@ -94,6 +94,8 @@ class elr_plus_loss(nn.Module):
         self.memeory_ut = self.memeory_ut.detach()
 
         ##### pred the softlabel by grouse
+        import pdb
+        pdb.set_trace()
         y_pred_grouse = torch.mm(feature_lowdim, torch.transpose(self.memeory_ut,(1,0)))
         y_pred_grouse = F.softmax(y_pred_grouse,dim=1)
 
