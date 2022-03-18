@@ -17,25 +17,24 @@ class Trainer(BaseTrainer):
     Note:
         Inherited from BaseTrainer.
     """
-    def __init__(self, model1, model2, model_ema1, model_ema2, train_criterion1, train_criterion2, metrics, optimizer1, optimizer2, config, 
-                 data_loader1, data_loader2,
+    def __init__(self, model1, model2, model_ema1,  train_criterion1,  metrics, optimizer1,  config, 
+                 data_loader1, 
                  valid_data_loader=None,
                  test_data_loader=None,
                  lr_scheduler1=None, lr_scheduler2=None,
                  len_epoch=None, val_criterion=None,
-                 model_ema1_copy=None, model_ema2_copy=None):
-        super().__init__(model1, model2, model_ema1, model_ema2, train_criterion1, train_criterion2, 
-                         metrics, optimizer1, optimizer2, config, val_criterion, model_ema1_copy, model_ema2_copy)
+                 model_ema1_copy=None):
+        super().__init__(model1, model2, model_ema1,  train_criterion1,  
+                         metrics, optimizer1, config, val_criterion, model_ema1_copy)
         self.config = config.config
         self.data_loader1 = data_loader1
-        self.data_loader2 = data_loader2
+  
         if len_epoch is None:
             # epoch-based training
             self.len_epoch = len(self.data_loader1)
         else:
             # iteration-based training
             self.data_loader1 = inf_loop(data_loader1)
-            self.data_loader2 = inf_loop(data_loader2)
             self.len_epoch = len_epoch
         self.valid_data_loader = valid_data_loader
 

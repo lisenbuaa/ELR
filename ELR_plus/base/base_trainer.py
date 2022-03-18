@@ -11,9 +11,9 @@ class BaseTrainer:
     """
     Base class for all trainers
     """
-    def __init__(self, model1, model2, model_ema1, model_ema2, train_criterion1, 
-                train_criterion2, metrics, optimizer1, optimizer2, config, val_criterion,
-                model_ema1_copy, model_ema2_copy):
+    def __init__(self, model1,  model_ema1,  train_criterion1, 
+                 metrics, optimizer1,  config, val_criterion,
+                model_ema1_copy):
         self.config = config.config
 
         self.logger = config.get_logger('trainer', config['trainer']['verbosity'])
@@ -26,22 +26,17 @@ class BaseTrainer:
             print('Using Multi-Processing!')
 
         self.model1 = model1.to(self.device+str(self.device_ids[0]))
-        self.model2 = model2.to(self.device+str(self.device_ids[-1]))
+
 
         if model_ema1 is not None:
             self.model_ema1 = model_ema1.to(self.device+str(self.device_ids[0]))
-            self.model_ema2_copy = model_ema2_copy.to(self.device+str(self.device_ids[0]))
+
         else:
             self.model_ema1 = None
-            self.model_ema2_copy = None
 
-        if model_ema2 is not None:
-            self.model_ema2 = model_ema2.to(self.device+str(self.device_ids[-1]))
-            self.model_ema1_copy = model_ema1_copy.to(self.device+str(self.device_ids[-1]))
-        else:
-            self.model_ema2 = None
-            self.model_ema1_copy = None
-        
+ 
+
+    
         if self.model_ema1 is not None:
             for param in self.model_ema1.parameters():
                 param.detach_()
@@ -49,23 +44,18 @@ class BaseTrainer:
             for param in self.model_ema2_copy.parameters():
                 param.detach_()
 
-        if self.model_ema2 is not None:
-            for param in self.model_ema2.parameters():
-                param.detach_()
 
-            for param in self.model_ema1_copy.parameters():
-                param.detach_()
 
         
         self.train_criterion1 = train_criterion1.to(self.device+str(self.device_ids[0]))
-        self.train_criterion2 = train_criterion2.to(self.device+str(self.device_ids[-1]))
+  
 
         self.val_criterion = val_criterion
         
         self.metrics = metrics
 
         self.optimizer1 = optimizer1
-        self.optimizer2 = optimizer2
+
 
         cfg_trainer = config['trainer']
         self.epochs = cfg_trainer['epochs']
