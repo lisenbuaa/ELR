@@ -184,7 +184,8 @@ class Trainer(BaseTrainer):
                     output1,_,_,_ = model1(data)
                     output2,_,_,_ = model2(data)
 
-                    output = 0.5*(output1 + output2)
+                    # output = 0.5*(output1 + output2)
+                    output = output1
 
                     loss = self.val_criterion(output, target)
 
@@ -233,7 +234,8 @@ class Trainer(BaseTrainer):
                     output1,_,_,_ = model1(data)
                     output2,_,_,_ = model2(data)
                     
-                    output = 0.5*(output1 + output2)
+                    # output = 0.5*(output1 + output2)
+                    output = output1
                     loss = self.val_criterion(output, target)
                     self.writer.set_step((epoch - 1) * len(self.test_data_loader) + batch_idx, 'test')
                     self.writer.add_scalar('loss', loss.item())

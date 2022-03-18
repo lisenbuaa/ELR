@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES=5 python train.py -c config_clothing1m.json --percent 0.3
+CUDA_VISIBLE_DEVICES=4 python train.py -c config_clothing1m.json --percent 0.8
