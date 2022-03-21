@@ -81,7 +81,7 @@
     "trainer": {
         "epochs": 30,
         "warmup": 0,
-        "save_dir": "../saved_grouse_low_dim_with_reconstruction",
+        "save_dir": "../saved_grouse_v0",
         "save_period": 1,
         "verbosity": 2,
         "label_dir": "saved/",
