@@ -39,18 +39,18 @@
     "optimizer1": {
         "type": "SGD",
         "args":{
-            "lr": 0.002,
+            "lr": 0.01,
             "momentum": 0.9,
-            "weight_decay": 1e-3
+            "weight_decay": 5e-3
         }
     },
 
     "optimizer2": {
         "type": "SGD",
         "args":{
-            "lr": 0.002,
+            "lr": 0.01,
             "momentum": 0.9,
-            "weight_decay": 1e-3
+            "weight_decay": 5e-3
         }
     },
 
@@ -60,9 +60,9 @@
         "type": "elr_plus_loss",
         "args":{
             "beta": 0.7,
-            "lambda": 10,
-            "gamma":1,
-            "alpha":5
+            "lambda": 5,
+            "gamma":10,
+            "alpha":10
         }
     },
 
@@ -74,13 +74,13 @@
     "lr_scheduler": {
         "type": "MultiStepLR",
         "args": {
-            "milestones": [7],
+            "milestones": [10,15],
             "gamma": 0.1
         }
     },
 
     "trainer": {
-        "epochs": 15,
+        "epochs": 30,
         "warmup": 0,
         "save_dir": "../saved_grouse_v0",
         "save_period": 1,
