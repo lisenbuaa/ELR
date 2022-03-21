@@ -44,7 +44,7 @@ class elr_plus_loss(nn.Module):
         features_loss = self.mse(torch.torch.mm(weight,self.memeory_ut), vt)
         reconstruct_loss = self.mse(features_highdim, features_resconstruct)
 
-        final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda'])*elr_reg + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['gamma'])*(features_loss+reconstruct_loss)
+        final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda'])*elr_reg + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['gamma'])*features_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['alpha'])*reconstruct_loss
         
         # weight_norm = torch.norm(weight)
 
@@ -99,7 +99,6 @@ class elr_plus_loss(nn.Module):
         temp = self.memeory_ut.transpose(1,0)
         y_pred_grouse = torch.mm(feature_lowdim, temp)
         y_pred_grouse = F.softmax(y_pred_grouse,dim=1)
-
 
         self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse/(y_pred_grouse).sum(dim=1,keepdim=True)
         self.q = mixup_l * self.pred_hist[index]  + (1-mixup_l) * self.pred_hist[index][mix_index]
