@@ -39,7 +39,7 @@
     "optimizer1": {
         "type": "SGD",
         "args":{
-            "lr": 0.0025,
+            "lr": 0.002,
             "momentum": 0.9,
             "weight_decay": 1e-3
         }
@@ -48,7 +48,7 @@
     "optimizer2": {
         "type": "SGD",
         "args":{
-            "lr": 0.0025,
+            "lr": 0.002,
             "momentum": 0.9,
             "weight_decay": 1e-3
         }
@@ -60,8 +60,8 @@
         "type": "elr_plus_loss",
         "args":{
             "beta": 0.7,
-            "lambda": 5,
-            "gamma":5
+            "lambda": 10,
+            "gamma":1
         }
     },
 
