@@ -60,8 +60,8 @@
         "type": "elr_plus_loss",
         "args":{
             "beta": 0.7,
-            "lambda": 10,
-            "gamma":10,
+            "lambda": 5,
+            "gamma":5,
             "alpha":5
         }
     },
@@ -75,7 +75,7 @@
         "type": "MultiStepLR",
         "args": {
             "milestones": [7,15,25],
-            "gamma": 0.5
+            "gamma": 0.1
         }
     },
 
