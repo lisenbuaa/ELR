@@ -7,6 +7,9 @@ from torch.autograd import Variable
 import math
 from utils import sigmoid_rampup, sigmoid_rampdown, cosine_rampup, cosine_rampdown, linear_rampup
 import torch.nn as nn
+from scipy.stats import ortho_group
+
+m = ortho_group.rvs(dim=128)
 
 
 def cross_entropy(output, target, M=3):
@@ -21,8 +24,9 @@ class elr_plus_loss(nn.Module):
         self.beta = beta
         self.num_classes = num_classes
         self.mse = nn.MSELoss()
-        one_vector = torch.ones(self.num_classes, 128).cuda()
-        self.memeory_ut = torch.div(one_vector,torch.norm(one_vector))
+        # one_vector = torch.ones(self.num_classes, 128).cuda()
+        # self.memeory_ut = torch.div(one_vector,torch.norm(one_vector))
+        self.memeory_ut = m[:,:num_classes]
 
     def forward(self, iteration, output, y_labeled, vt,features_highdim,features_resconstruct, epoch):
         self.n_size = 1/epoch
