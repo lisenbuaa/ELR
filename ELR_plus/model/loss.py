@@ -31,7 +31,6 @@ class elr_plus_loss(nn.Module):
     def forward(self, iteration, output, y_labeled, vt,features_highdim,features_resconstruct, epoch):
         self.n_size = 1/epoch
         vt = vt.squeeze()
-
         y_pred = F.softmax(output,dim=1)
 
         y_pred = torch.clamp(y_pred, 1e-4, 1.0-1e-4)
@@ -43,7 +42,8 @@ class elr_plus_loss(nn.Module):
         ce_loss = torch.mean(-torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1))
         elr_reg = ((1-(self.q * y_pred).sum(dim=1)).log()).mean()
         # final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda']*reg)
-        weight = self.q.detach()
+        # weight = self.q.detach()
+        weight = y_pred
         #### add by lisen
         features_loss = self.mse(torch.torch.mm(weight,self.memeory_ut), vt)
         reconstruct_loss = self.mse(features_highdim, features_resconstruct)
