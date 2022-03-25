@@ -26,7 +26,7 @@ class elr_plus_loss(nn.Module):
         self.mse = nn.MSELoss()
         # one_vector = torch.ones(self.num_classes, 128).cuda()
         # self.memeory_ut = torch.div(one_vector,torch.norm(one_vector))
-        self.memeory_ut = m[:,:num_classes]
+        self.memeory_ut = m[:num_classes,:].cuda()
 
     def forward(self, iteration, output, y_labeled, vt,features_highdim,features_resconstruct, epoch):
         self.n_size = 1/epoch
@@ -102,7 +102,8 @@ class elr_plus_loss(nn.Module):
         # pdb.set_trace()
         temp = self.memeory_ut.transpose(1,0)
         y_pred_grouse = torch.mm(feature_lowdim, temp)
-        y_pred_grouse = F.softmax(y_pred_grouse,dim=1)
+        tau = 0.5
+        y_pred_grouse = F.softmax(y_pred_grouse/tau,dim=1)
 
         self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse/(y_pred_grouse).sum(dim=1,keepdim=True)
         self.q = mixup_l * self.pred_hist[index]  + (1-mixup_l) * self.pred_hist[index][mix_index]
