@@ -26,7 +26,7 @@ class elr_plus_loss(nn.Module):
         self.mse = nn.MSELoss()
         # one_vector = torch.ones(self.num_classes, 128).cuda()
         # self.memeory_ut = torch.div(one_vector,torch.norm(one_vector))
-        self.memeory_ut = m[:num_classes,:].cuda()
+        self.memeory_ut = torch.tensor(np.float32(m[:num_classes,:])).cuda()
 
     def forward(self, iteration, output, y_labeled, vt,features_highdim,features_resconstruct, epoch):
         self.n_size = 1/epoch
