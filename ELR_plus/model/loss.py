@@ -70,8 +70,8 @@ class elr_plus_loss(nn.Module):
       
         return  final_loss, y_pred.cpu().detach()
 
-    def update_hist(self, epoch, out, feature_lowdim, index= None, mix_index = ..., mixup_l = 1):
-
+    # def update_hist(self, epoch, out, feature_lowdim, index= None, mix_index = ..., mixup_l = 1):
+    def update_hist(self, epoch, out, feature_lowdim):
         self.n_size = 1/epoch
         y_pred_ = F.softmax(out,dim=1)
 
@@ -105,5 +105,4 @@ class elr_plus_loss(nn.Module):
         tau = 0.5
         y_pred_grouse = F.softmax(y_pred_grouse/tau,dim=1)
 
-        self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse/(y_pred_grouse).sum(dim=1,keepdim=True)
-        self.q = mixup_l * self.pred_hist[index]  + (1-mixup_l) * self.pred_hist[index][mix_index]
+        

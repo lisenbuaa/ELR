@@ -101,15 +101,15 @@ class Trainer(BaseTrainer):
                 target = torch.zeros(len(target), self.config['num_classes']).scatter_(1, target.view(-1,1), 1)  
                 data, target, target_original = data.to(device), target.float().to(device), target_original.to(device)
                 
-                data, target, mixup_l, mix_index = self._mixup_data(data, target,  alpha = self.config['mixup_alpha'], device = device)
+                # data, target, mixup_l, mix_index = self._mixup_data(data, target,  alpha = self.config['mixup_alpha'], device = device)
                 
                 output,features_lowdim,features_highdim,features_reconstruct = model(data)
 
                 data_original = data_original.to(device)
                 output_original,features_lowdim_original,_,_ = model_ema(data_original)
                 output_original = output_original.data.detach()
-                train_criterion.update_hist(epoch, output_original,features_lowdim_original,indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
-                
+                # train_criterion.update_hist(epoch, output_original,features_lowdim_original,indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
+                train_criterion.update_hist(epoch, output_original,features_lowdim_original)
                 local_step += 1
                 loss, probs = train_criterion(self.global_step + local_step, output, target, features_lowdim,features_highdim,features_reconstruct, epoch)
                 
