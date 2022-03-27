@@ -39,8 +39,8 @@ class elr_plus_loss(nn.Module):
             y_labeled = y_labeled*self.q
             y_labeled = y_labeled/(y_labeled).sum(dim=1,keepdim=True)
 
-        import pdb
-        pdb.set_trace()
+        # import pdb
+        # pdb.set_trace()
         if epoch > 8:
             y_pred_score = y_pred.gather(1,gt_label)
             clean_index = y_pred_score >= 0.5
