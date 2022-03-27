@@ -61,8 +61,8 @@
         "args":{
             "beta": 0.9,
             "lambda": 0,
-            "gamma":10,
-            "alpha":5
+            "gamma":3,
+            "alpha":1
         }
     },
 
