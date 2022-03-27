@@ -113,7 +113,7 @@ class Trainer(BaseTrainer):
                 # train_criterion.update_hist(epoch, output_original,features_lowdim_original,indexs.numpy().tolist(), mix_index = mix_index, mixup_l = mixup_l)
                 train_criterion.update_hist(epoch, output_original,features_lowdim_original,indexs.numpy().tolist())
                 local_step += 1
-                loss, probs = train_criterion(self.global_step + local_step, output, target, gt_original,features_lowdim,features_highdim,features_reconstruct)
+                loss, probs = train_criterion(self.global_step + local_step, output, target, gt_original,features_lowdim,features_highdim,features_reconstruct,epoch)
                
                 optimizer.zero_grad()
                 loss.backward() 
