@@ -101,7 +101,7 @@ class Trainer(BaseTrainer):
                 gt_original = target
 
                 target = torch.zeros(len(target), self.config['num_classes']).scatter_(1, target.view(-1,1), 1)  
-                data, target, target_original,gt_original = data.to(device), target.float().to(device), target_original.to(device),gt_original.to(device)
+                data, target, target_original, gt_original= data.to(device), target.float().to(device), target_original.to(device),gt_original.to(device)
                 
                 # data, target, mixup_l, mix_index = self._mixup_data(data, target,  alpha = self.config['mixup_alpha'], device = device)
                 

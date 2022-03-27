@@ -29,7 +29,7 @@ class elr_plus_loss(nn.Module):
         # self.memeory_ut = torch.div(one_vector,torch.norm(one_vector))
         self.memeory_ut = torch.tensor(np.float32(m[:num_classes,:])).cuda()
 
-    def forward(self, iteration, output, y_labeled,gt_label, vt,features_highdim,features_resconstruct):
+    def forward(self, iteration, output, y_labeled,gt_label, vt,features_highdim,features_resconstruct,epoch):
         vt = vt.squeeze()
         y_pred = F.softmax(output,dim=1)
 
@@ -41,8 +41,18 @@ class elr_plus_loss(nn.Module):
 
         import pdb
         pdb.set_trace()
-        y_pred_score = y_pred.gather(1,gt_label)
-        ce_loss = torch.mean(-torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1))
+        if epoch > 8:
+            y_pred_score = y_pred.gather(1,gt_label)
+            clean_index = y_pred_score >= 0.5
+            noise_index = y_pred_score < 0.5
+            clean_ce_loss = -torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1) 
+            noise_ce_loss = -torch.sum(self.q * F.log_softmax(output, dim=1), dim = -1)
+            ce_loss = torch.mean(clean_ce_loss[clean_index]+noise_ce_loss[noise_index])
+
+        else:
+            ce_loss = torch.mean(-torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1))
+
+    
         elr_reg = ((1-(self.q * y_pred).sum(dim=1)).log()).mean()
         # final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda']*reg)
         # weight = self.q.detach()
@@ -109,6 +119,8 @@ class elr_plus_loss(nn.Module):
             tau = 0.5
             y_pred_grouse = F.softmax(y_pred_grouse/tau,dim=1)
             self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse
+            self.q = self.pred_hist[index]
+
             
 
 
