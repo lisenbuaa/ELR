@@ -41,7 +41,7 @@ class elr_plus_loss(nn.Module):
 
         # import pdb
         # pdb.set_trace()
-        if epoch > 8:
+        if epoch > 2:
             y_pred_score = y_pred.gather(1,gt_label)
             clean_index = y_pred_score >= 0.5
             noise_index = y_pred_score < 0.5
@@ -110,7 +110,7 @@ class elr_plus_loss(nn.Module):
         torch.sin(thegma*self.n_size)*torch.div(v_vertical,v_vertical_norm))
         self.memeory_ut = self.memeory_ut.detach()
 
-        if epoch > 8:
+        if epoch > 2:
         ##### pred the softlabel by grouse
         # import pdb
         # pdb.set_trace()
