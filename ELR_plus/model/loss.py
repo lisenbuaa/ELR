@@ -40,7 +40,8 @@ class elr_plus_loss(nn.Module):
             y_labeled = y_labeled*self.q
             y_labeled = y_labeled/(y_labeled).sum(dim=1,keepdim=True)
 
-
+        import pdb
+        pdb.set_trace()
         y_pred_score = y_pred.gather(1,gt_label)
         ce_loss = torch.mean(-torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1))
         elr_reg = ((1-(self.q * y_pred).sum(dim=1)).log()).mean()
