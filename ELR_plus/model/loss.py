@@ -20,6 +20,7 @@ class elr_plus_loss(nn.Module):
         super(elr_plus_loss, self).__init__()
         self.config = config
         self.pred_hist = (torch.zeros(num_examp, num_classes)).to(device)
+        self.train_clean = (torch.ones(num_examp,)).to(device)
         self.q = 0
         self.beta = beta
         self.num_classes = num_classes
@@ -28,7 +29,7 @@ class elr_plus_loss(nn.Module):
         # self.memeory_ut = torch.div(one_vector,torch.norm(one_vector))
         self.memeory_ut = torch.tensor(np.float32(m[:num_classes,:])).cuda()
 
-    def forward(self, iteration, output, y_labeled, vt,features_highdim,features_resconstruct, epoch):
+    def forward(self, iteration, output, y_labeled,gt_label, vt,features_highdim,features_resconstruct, epoch):
         self.n_size = 1/epoch
         vt = vt.squeeze()
         y_pred = F.softmax(output,dim=1)
@@ -39,6 +40,8 @@ class elr_plus_loss(nn.Module):
             y_labeled = y_labeled*self.q
             y_labeled = y_labeled/(y_labeled).sum(dim=1,keepdim=True)
 
+
+        y_pred_score = y_pred.gather(1,gt_label)
         ce_loss = torch.mean(-torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1))
         elr_reg = ((1-(self.q * y_pred).sum(dim=1)).log()).mean()
         # final_loss = ce_loss + sigmoid_rampup(iteration, self.config['coef_step'])*(self.config['train_loss']['args']['lambda']*reg)
@@ -71,7 +74,7 @@ class elr_plus_loss(nn.Module):
         return  final_loss, y_pred.cpu().detach()
 
     # def update_hist(self, epoch, out, feature_lowdim, index= None, mix_index = ..., mixup_l = 1):
-    def update_hist(self, epoch, out, feature_lowdim):
+    def update_hist(self, epoch, out, index, feature_lowdim):
         self.n_size = 1/epoch
         y_pred_ = F.softmax(out,dim=1)
 
@@ -97,12 +100,18 @@ class elr_plus_loss(nn.Module):
         torch.sin(thegma*self.n_size)*torch.div(v_vertical,v_vertical_norm))
         self.memeory_ut = self.memeory_ut.detach()
 
+        if epoch > 8:
         ##### pred the softlabel by grouse
         # import pdb
         # pdb.set_trace()
-        temp = self.memeory_ut.transpose(1,0)
-        y_pred_grouse = torch.mm(feature_lowdim, temp)
-        tau = 0.5
-        y_pred_grouse = F.softmax(y_pred_grouse/tau,dim=1)
+            temp = self.memeory_ut.transpose(1,0)
+            y_pred_grouse = torch.mm(feature_lowdim, temp)
+            tau = 0.5
+            y_pred_grouse = F.softmax(y_pred_grouse/tau,dim=1)
+            self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse
+            
+
+
+            
 
         
