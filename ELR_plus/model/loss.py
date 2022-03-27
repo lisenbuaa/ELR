@@ -75,7 +75,7 @@ class elr_plus_loss(nn.Module):
         return  final_loss, y_pred.cpu().detach()
 
     # def update_hist(self, epoch, out, feature_lowdim, index= None, mix_index = ..., mixup_l = 1):
-    def update_hist(self, epoch, out, index, feature_lowdim):
+    def update_hist(self, epoch, out,  feature_lowdim,index):
         self.n_size = 1/epoch
         y_pred_ = F.softmax(out,dim=1)
 
