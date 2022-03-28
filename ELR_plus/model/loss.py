@@ -47,7 +47,7 @@ class elr_plus_loss(nn.Module):
             noise_index = y_pred_score < 0.5
             clean_ce_loss = -torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1) 
             noise_ce_loss = -torch.sum(self.q * F.log_softmax(output, dim=1), dim = -1)
-            ce_loss = torch.mean(clean_ce_loss[clean_index]+noise_ce_loss[noise_index])
+            ce_loss = torch.mean(clean_ce_loss[clean_index])+ torch.mean(noise_ce_loss[noise_index])
 
         else:
             ce_loss = torch.mean(-torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1))
@@ -110,7 +110,7 @@ class elr_plus_loss(nn.Module):
         torch.sin(thegma*self.n_size)*torch.div(v_vertical,v_vertical_norm))
         self.memeory_ut = self.memeory_ut.detach()
 
-        if epoch > 2:
+        if epoch > 1:
         ##### pred the softlabel by grouse
         # import pdb
         # pdb.set_trace()
