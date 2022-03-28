@@ -123,10 +123,11 @@ class elr_plus_loss(nn.Module):
             y_pred_grouse = torch.mm(feature_lowdim, temp)
             tau = 0.5
             y_pred_grouse = F.softmax(y_pred_grouse/tau,dim=1)
-            self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse/(y_pred_grouse).sum(dim=1,keepdim=True)
+            self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse
             self.q = self.pred_hist[index]
         else:
-            self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_/(y_pred_).sum(dim=1,keepdim=True)
+            self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_
+            self.q = self.pred_hist[index]
 
 
             
