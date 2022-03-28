@@ -28,7 +28,7 @@
             "data_dir": "/home/lisen/data/clothing1m",
             "batch_size": 64,
             "batch_size2": 64,
-            "num_batches": 3000,
+            "num_batches": 300,
             "shuffle": true,
             "validation_split": 0,
             "num_workers": 16,
