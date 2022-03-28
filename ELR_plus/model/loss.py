@@ -121,7 +121,7 @@ class elr_plus_loss(nn.Module):
         # pdb.set_trace()
             temp = self.memeory_ut.transpose(1,0)
             y_pred_grouse = torch.mm(feature_lowdim, temp)
-            tau = 0.5
+            tau = 1
             y_pred_grouse = F.softmax(y_pred_grouse/tau,dim=1)
             self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse
             self.q = self.pred_hist[index]
