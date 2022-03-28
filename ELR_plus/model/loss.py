@@ -41,7 +41,7 @@ class elr_plus_loss(nn.Module):
 
         # import pdb
         # pdb.set_trace()
-        if epoch > 8:
+        if epoch > 2:
             y_pred_score = y_pred.gather(1,gt_label.unsqueeze(1))
             clean_index = y_pred_score >= 0.5
             noise_index = y_pred_score < 0.5
@@ -88,8 +88,8 @@ class elr_plus_loss(nn.Module):
         return  final_loss, y_pred.cpu().detach()
 
     # def update_hist(self, epoch, out, feature_lowdim, index= None, mix_index = ..., mixup_l = 1):
-    def update_hist(self, epoch, out,  feature_lowdim,index):
-        self.n_size = 1/epoch
+    def update_hist(self, epoch, out,  feature_lowdim, index):
+        self.n_size = 1 / epoch
         y_pred_ = F.softmax(out,dim=1)
 
         weight = y_pred_.detach()
@@ -114,7 +114,8 @@ class elr_plus_loss(nn.Module):
         torch.sin(thegma*self.n_size)*torch.div(v_vertical,v_vertical_norm))
         self.memeory_ut = self.memeory_ut.detach()
 
-        if epoch > 8:
+
+        if epoch > 2:
         ##### pred the softlabel by grouse
         # import pdb
         # pdb.set_trace()
@@ -122,8 +123,11 @@ class elr_plus_loss(nn.Module):
             y_pred_grouse = torch.mm(feature_lowdim, temp)
             tau = 0.5
             y_pred_grouse = F.softmax(y_pred_grouse/tau,dim=1)
-            self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse
+            self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_grouse/(y_pred_grouse).sum(dim=1,keepdim=True)
             self.q = self.pred_hist[index]
+        else:
+            self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_/(y_pred_).sum(dim=1,keepdim=True)
+
 
             
 
