@@ -45,8 +45,10 @@ class elr_plus_loss(nn.Module):
             y_pred_score = y_pred.gather(1,gt_label.unsqueeze(1))
             clean_index = y_pred_score >= 0.5
             noise_index = y_pred_score < 0.5
-            import pdb
-            pdb.set_trace()
+            clean_index = clean_index.squeeze()
+            noise_index = noise_index.squeeze()
+            # import pdb
+            # pdb.set_trace()
             clean_ce_loss = -torch.sum(y_labeled * F.log_softmax(output, dim=1), dim = -1) 
             noise_ce_loss = -torch.sum(self.q * F.log_softmax(output, dim=1), dim = -1)
             ce_loss = torch.mean(clean_ce_loss[clean_index])+ torch.mean(noise_ce_loss[noise_index])
