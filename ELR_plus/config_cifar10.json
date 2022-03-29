@@ -52,7 +52,7 @@
     "optimizer2": {
         "type": "SGD",
         "args":{
-            "lr": 0.02,
+            "lr": 0.025,
             "momentum": 0.9,
             "weight_decay": 5e-4
         }
@@ -65,7 +65,7 @@
         "args":{
             "beta": 0.7,
             "lambda": 3,
-            "gamma":5
+            "gamma":1
         }
     },
 
