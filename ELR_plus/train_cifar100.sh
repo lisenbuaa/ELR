@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=3 python train.py -c config_cifar100.json --percent 0.3
