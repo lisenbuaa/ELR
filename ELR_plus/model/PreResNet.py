@@ -129,8 +129,8 @@ class PreActResNet(nn.Module):
         self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
         self.linear = nn.Linear(512*block.expansion, num_classes)
-        self.fc_low_dim = nn.Linear(self.in_channels, 128)
-        self.fc_reconstruct = nn.Linear(128, self.in_channels)
+        self.fc_low_dim = nn.Linear(512*block.expansion, 128)
+        self.fc_reconstruct = nn.Linear(128, 512*block.expansion)
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
