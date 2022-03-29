@@ -129,6 +129,8 @@ class PreActResNet(nn.Module):
         self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
         self.linear = nn.Linear(512*block.expansion, num_classes)
+        self.fc_low_dim = nn.Linear(self.in_channels, 128)
+        self.fc_reconstruct = nn.Linear(128, self.in_channels)
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -155,8 +157,10 @@ class PreActResNet(nn.Module):
         if lout > 4:
             out = F.avg_pool2d(out, 4)
             out = out.view(out.size(0), -1)
+            features_lowdim = self.fc_low_dim(out)
+            features_reconstruct = self.fc_reconstruct(features_lowdim)
             out_final = self.linear(out)
-        return out_final
+        return out_final,features_lowdim, out, features_reconstruct
 
 
 def PreActResNet18(num_classes=10):
