@@ -63,7 +63,8 @@
         "type": "elr_plus_loss",
         "args":{
             "beta": 0.9,
-            "lambda": 7
+            "lambda": 7,
+            "gamma":5
         }
     },
 
