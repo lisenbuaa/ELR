@@ -68,15 +68,16 @@ class elr_plus_loss(nn.Module):
 
     def update_hist(self, epoch, out, feature_lowdim, index= None, mix_index = ..., mixup_l = 1):
 
-        self.n_size = 1/epoch
-        y_pred_ = F.softmax(out,dim=1)
+
         y_pred_ = F.softmax(out,dim=1)
         self.pred_hist[index] = self.beta * self.pred_hist[index] +  (1-self.beta) *  y_pred_/(y_pred_).sum(dim=1,keepdim=True)
         self.q = mixup_l * self.pred_hist[index]  + (1-mixup_l) * self.pred_hist[index][mix_index]
 
-        weight = y_pred_.detach()
+        
 
         #### add by lisen
+        weight = y_pred_.detach()
+        self.n_size = 1/epoch
         
         weight_norm = torch.norm(weight)
 
