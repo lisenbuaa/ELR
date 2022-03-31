@@ -230,7 +230,7 @@ class Trainer(BaseTrainer):
 
                     output1 = model1(data)
                     output2 = model2(data)
-                    print(torch.nn.softmax(output1)[:10])
+                    # print(torch.nn.softmax(output1)[:10])
                     
                     output = 0.5*(output1 + output2)
                     loss = self.val_criterion(output, target)
