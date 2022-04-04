@@ -65,7 +65,7 @@
         "args":{
             "beta": 0.7,
             "lambda": 3,
-            "gamma":1
+            "gamma":5
         }
     },
 
